@@ -5,19 +5,26 @@ on: [push]
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      CUDA_VISIBLE_DEVICES: ""  # Disable CUDA
+      FORCE_CUDA: "0"          # Force CPU usage
+      NO_CUDA: "1"            # Disable CUDA support
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: '3.8'
     
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        # Explicitly prevent pip from installing CUDA versions
+        export TORCH_CUDA_ARCH_LIST="None"
         pip install -r requirements.txt
+        pip install -e .
         
     - name: Train model
       run: |
